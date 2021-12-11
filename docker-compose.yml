@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./scripts/CREATE.sql:/docker-entrypoint-initdb.d/CREATE.sql"
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: dostavim    
+
+    healthcheck:
+      test: /usr/bin/mysql --user=root --password=admin --silent --execute "SELECT 1;"      
+      timeout: 20s
+      retries: 10    
+
+  java:
+    build:
+      context: ./DostavimVse
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
